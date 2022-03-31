@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+<script>
+const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+const cities = []
+
+fetch(endpoint).then(eP => eP.json())
+.then(data=> cities.push(...data));
+
+function placeFinder(toMatch,citis){
+  return citis.filter(place => { 
+       const rejexo = new RegExp(toMatch,'gi');
+    return place.city.match(rejexo) || place.state.match(rejexo)
+} ) }
+
+const inputPlaceish = document.querySelector('.search');
+const resultsSuggestions = document.querySelector('.suggestions');
+
+inputPlaceish.addEventListener('keyup', suggestionShow);
+inputPlaceish.addEventListener('change', suggestionShow);
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function suggestionShow(){
+  let matchArray = placeFinder( this.value, cities)
+  const html = matchArray.map(ich =>{
+    const rejexo = new RegExp(this.value,'gi')
+
+    const ciudad = ich.city.replace(rejexo, `<span class="hl">${this.value}</span>` )
+    const estado = ich.state.replace(rejexo, `<span class="hl">${this.value}</span>` )
+
+    return   `<li>
+                 <span class="name">${ciudad}, ${estado} </span>
+                 <span class= "population">${numberWithCommas(ich.population)}</span>
+              </li>` ; 
+        } ).join('');
+     resultsSuggestions.innerHTML=html;
+}
+
+
+</script>
+</body>
+</html>
